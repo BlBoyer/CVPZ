@@ -2,6 +2,7 @@
 using CVPZ.Infrastructure.Data;
 using MediatR;
 using OneOf;
+using CVPZ.Application.Common.Behaviors;
 using static CVPZ.Application.Job.JobEvents;
 
 namespace CVPZ.Application.Job;
@@ -14,7 +15,8 @@ public static class CreateJob
         string? Description,
         DateTimeOffset StartDate,
         DateTimeOffset? EndDate)
-        : IRequest<OneOf<Response, Error>>;
+        : UserRequest, IRequest<OneOf<Response, Error>>
+    { public override string UserId { get; set; } }
 
     public record Response(
         string Id,
@@ -22,7 +24,8 @@ public static class CreateJob
         string Title,
         string? Description,
         DateTimeOffset StartDate,
-        DateTimeOffset? EndDate);
+        DateTimeOffset? EndDate,
+        string UserId);
 
     public class Errors
     {
@@ -65,7 +68,8 @@ public static class CreateJob
                 entity.Title,
                 entity.Description,
                 entity.StartDate,
-                entity.EndDate);
+                entity.EndDate,
+                entity.UserId);
 
             await _mediator.Publish(new JobCreated(entity.Id.ToString()));
 
